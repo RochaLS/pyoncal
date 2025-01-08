@@ -10,6 +10,10 @@ public class MainController {
     public String home() {
         return "index";
     }
+    @GetMapping("/logged-in")
+    public String loggedIn() {
+        return "loggedIn";
+    }
 
     @GetMapping("/connect-google")
     public String connectGoogle() {
