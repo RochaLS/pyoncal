@@ -1,0 +1,89 @@
+/* Container styling */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f7fa;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+span {
+    color: #00A3E0;
+}
+
+.container {
+    width: 90%;
+    max-width: 600px;
+    background: #ffffff;
+    padding: 20px 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h1 {
+    font-size: 3em;
+}
+
+
+
+.heading {
+    font-size: 16px;
+    color: #1A1A1D;
+    margin-bottom: 20px;
+}
+
+/* Label styling */
+label {
+    display: block;
+    font-size: 14px;
+    margin: 15px 0 5px;
+    color: #555;
+}
+
+/* Form and select styling */
+.form {
+    margin-top: 20px;
+}
+
+select {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    margin-bottom: 15px;
+}
+
+/* File input styling */
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    margin-bottom: 15px;
+}
+
+/* Submit button styling */
+.import-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    background-color: #00A3E0;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+
+.import-btn:hover {
+    background-color: #3D3D3D;
+}

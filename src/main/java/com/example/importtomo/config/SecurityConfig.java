@@ -11,13 +11,17 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .csrf().disable()
                 .authorizeHttpRequests(registry -> {
-                    registry.requestMatchers("/").permitAll();
+                    // Allow unauthenticated access to the login page and static resources
                     registry.requestMatchers("/css/**", "/js/**", "/images/**").permitAll();
-                    registry.anyRequest().authenticated();
+                    registry.requestMatchers("/").permitAll(); // Allow /connect as the OAuth2 login endpoint
+                    registry.anyRequest().authenticated(); // Require authentication for all other requests
                 })
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/index")
+                        .loginPage("/")
+                        .defaultSuccessUrl("/dashboard", true) // Redirect to /logged-in on successful login
+                        .failureUrl("/login-error") // Add a custom failure URL to handle errors
                 );
 
         return http.build();
