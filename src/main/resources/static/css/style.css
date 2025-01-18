@@ -13,6 +13,10 @@ h1 {
     padding: 50px;
 }
 
+span {
+    color: #00A3E0;
+}
+
 .container {
     display: flex;
     justify-content: center;
