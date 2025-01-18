@@ -4,6 +4,14 @@
     <meta charset="UTF-8">
     <title>Dashboard</title>
   <link rel="stylesheet" href="/css/dashboard.css">
+  <script>
+    // Function to disable the submit button after form submission
+    function disableSubmitButton() {
+      const submitButton = document.getElementById('submitButton');
+      submitButton.disabled = true;
+      submitButton.innerText = 'Processing...';
+    }
+  </script>
 </head>
 <body>
 <h1>PyonCal<span>.</span></h1>
@@ -15,19 +23,19 @@
     <label for="calendars">Choose a calendar to import your shifts to:</label>
 
     <div class="form">
-      <form action="/process-image" method="post" enctype="multipart/form-data">
-      <select name="calendars" id="calendars">
+      <form action="/process-image" method="post" enctype="multipart/form-data" onsubmit="disableSubmitButton()">
+        <select name="calendars" id="calendars">
           <option>Select...</option>
           <th:block th:each="calendar : ${calendars}">
             <option th:value="${calendar['id']}" th:text="${calendar['name']}"></option>
           </th:block>
         </select>
-
-
-        <label>Upload work schedule screenshot:</label>
-        <input type="file" id="myFile" name="file" >
-        <input type="hidden" name="_csrf" value="${_csrf.token}"><input type="hidden" name="access_token" th:value="${accessToken}">
-        <button class="import-btn" type="submit">Start Import</button>
+          <label for="event-title">Event title:</label>
+            <input type="text" id="event-title" name="event-title" placeholder="My shift">
+            <label>Upload work schedule screenshot:</label>
+            <input type="file" id="myFile" name="file" >
+            <input type="hidden" name="_csrf" value="${_csrf.token}"><input type="hidden" name="access_token" th:value="${accessToken}">
+            <button class="import-btn" type="submit">Start Import</button>
       </form>
     </div>
   </div>

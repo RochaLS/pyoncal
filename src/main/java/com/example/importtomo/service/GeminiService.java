@@ -1,5 +1,7 @@
 package com.example.importtomo.service;
 
+import com.example.importtomo.dto.Shift;
+import com.example.importtomo.dto.ShiftWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
 
 @Service
 public class GeminiService {
@@ -26,7 +29,7 @@ public class GeminiService {
         this.restTemplate = new RestTemplate();
     }
 
-    public String processImage(MultipartFile file) throws IOException {
+    public List<Shift> processImage(MultipartFile file) throws IOException {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
 
@@ -44,17 +47,17 @@ public class GeminiService {
                         "- Provide the date, start time, end time, and month for each shift.\\n" +
                         "- If the image is not a schedule or calendar, return 0.\\n\\n" +
                         "The JSON structure should be: \\n\\n" +
-                        "{\\n" +
+//                        "{\\n" +
                         "  \\\"shifts\\\": [\\n" +
                         "    {\\n" +
                         "      \\\"date\\\": \\\"YYYY-MM-DD\\\",\\n" +
-                        "      \\\"start_time\\\": \\\"YYYY-MM-DDTHH:MM:SS-00:00\\\",\\n" +
-                        "      \\\"end_time\\\": \\\"YYYY-MM-DDTHH:MM:SS-00:00\\\",\\n" +
+                        "      \\\"start_time\\\": \\\"YYYY-MM-DDTHH:MM:SS-08:00\\\",\\n" +
+                        "      \\\"end_time\\\": \\\"YYYY-MM-DDTHH:MM:SS-08:00\\\",\\n" +
                         "      \\\"month\\\": M\\n" +
                         "    },\\n" +
                         "    ...\\n" +
                         "  ]\\n" +
-                        "}\\n\\n" +
+//                        "}\\n\\n" +
                         "Ensure that the JSON object contains only the list of shifts with their date, start time, end time, and month.\"}," +
                         "{\"inline_data\": {" +
                         "\"mime_type\": \"image/png\"," +
@@ -78,7 +81,7 @@ public class GeminiService {
         JsonNode rootNode = objectMapper.readTree(response.getBody());
 
         // Navigate to the `text` attribute
-        String text = rootNode
+        String rawText = rootNode
                 .path("candidates") // Navigate to "candidates"
                 .get(0)             // Access the first candidate object
                 .path("content")    // Navigate to "content"
@@ -87,8 +90,23 @@ public class GeminiService {
                 .path("text")       // Get the "text" field
                 .asText();          // Extract its value as a string
 
+        System.out.println(rawText);
+
+        // Remove backticks from the text if present
+        String text = rawText.replaceAll("```json\n", "").replaceAll("```", "");
+
+
+
+        // Parse the JSON into a list of Shift objects
+        ShiftWrapper wrapper = objectMapper.readValue(text, ShiftWrapper.class);
+        List<Shift> shifts = wrapper.getShifts();
+
+
         // Print the extracted text
         System.out.println("Extracted Text: " + text);
-        return text;
+
+        return shifts;
     }
+
+
 }
