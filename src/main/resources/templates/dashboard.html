@@ -2,16 +2,9 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard</title>
   <link rel="stylesheet" href="/css/dashboard.css">
-  <script>
-    // Function to disable the submit button after form submission
-    function disableSubmitButton() {
-      const submitButton = document.getElementById('submitButton');
-      submitButton.disabled = true;
-      submitButton.innerText = 'Processing...';
-    }
-  </script>
 </head>
 <body>
 <h1>PyonCal<span>.</span></h1>
@@ -24,20 +17,28 @@
 
     <div class="form">
       <form action="/process-image" method="post" enctype="multipart/form-data" onsubmit="disableSubmitButton()">
-        <select name="calendars" id="calendars">
+        <select name="calendars" id="calendars" required>
           <option>Select...</option>
           <th:block th:each="calendar : ${calendars}">
             <option th:value="${calendar['id']}" th:text="${calendar['name']}"></option>
           </th:block>
         </select>
           <label for="event-title">Event title:</label>
-            <input type="text" id="event-title" name="event-title" placeholder="My shift">
+            <input type="text" id="event-title" name="event-title" placeholder="My shift" required>
             <label>Upload work schedule screenshot:</label>
-            <input type="file" id="myFile" name="file" >
+            <input type="file" id="myFile" name="file" required>
             <input type="hidden" name="_csrf" value="${_csrf.token}"><input type="hidden" name="access_token" th:value="${accessToken}">
-            <button class="import-btn" type="submit">Start Import</button>
+            <button id="submitButton" class="import-btn" type="submit">Start Import</button>
       </form>
     </div>
   </div>
+<script>
+  // Function to disable the submit button after form submission
+  function disableSubmitButton() {
+    const submitButton = document.getElementById('submitButton');
+    submitButton.disabled = true;
+    submitButton.innerText = 'Processing...';
+  }
+</script>
 </body>
 </html>
