@@ -87,8 +87,9 @@ public class CalendarService {
         try {
             for (Shift shift : shifts) {
                 // Convert start and end times to ZonedDateTime objects
-                ZonedDateTime startTime = ZonedDateTime.parse(shift.getStartTime());
-                ZonedDateTime endTime = ZonedDateTime.parse(shift.getEndTime());
+                ZonedDateTime startTime = ZonedDateTime.parse(shift.getStartTime()).withYear(ZonedDateTime.now().getYear());
+                ZonedDateTime endTime = ZonedDateTime.parse(shift.getEndTime()).withYear(ZonedDateTime.now().getYear());
+
 
 
                 Event event = new Event().setSummary(calendarSummary);
@@ -104,6 +105,7 @@ public class CalendarService {
                             .setDateTime(new DateTime(formatZonedDateTimeForGoogle(endTime)))
                             .setTimeZone("UTC");
                     event.setEnd(end);
+
                     // Check if its duplicate and add the event to the list
                 if (!doesEventExist(calendarId, event, accessToken)) {
                     events.add(event);

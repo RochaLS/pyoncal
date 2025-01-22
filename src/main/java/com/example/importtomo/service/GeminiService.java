@@ -14,6 +14,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.Year;
 import java.util.Base64;
 import java.util.List;
 
@@ -36,6 +37,7 @@ public class GeminiService {
         // Read the image file and encode it in Base64
         byte[] imageBytes = file.getBytes();
         String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
+
 
         // Create the request body
         String requestBody = String.format(
