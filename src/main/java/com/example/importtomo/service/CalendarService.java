@@ -7,10 +7,7 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.client.util.DateTime;
 import com.google.api.services.calendar.CalendarScopes;
-import com.google.api.services.calendar.model.CalendarList;
-import com.google.api.services.calendar.model.Event;
-import com.google.api.services.calendar.model.EventDateTime;
-import com.google.api.services.calendar.model.Events;
+import com.google.api.services.calendar.model.*;
 import com.google.auth.http.HttpCredentialsAdapter;
 import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
@@ -82,28 +79,38 @@ public class CalendarService {
     }
 
 
-    public List<Event> mapShiftsToEvents(List<Shift> shifts, String calendarSummary, String calendarId, String accessToken) {
+    public List<Event> mapShiftsToEvents(List<Shift> shifts, String calendarSummary, String calendarId, String accessToken) throws GeneralSecurityException, IOException {
         List<Event> events = new ArrayList<>();
+
+        String userTimezone = getUserTimeZone(accessToken);
+
         try {
             for (Shift shift : shifts) {
-                // Convert start and end times to ZonedDateTime objects
-                ZonedDateTime startTime = ZonedDateTime.parse(shift.getStartTime()).withYear(ZonedDateTime.now().getYear());
-                ZonedDateTime endTime = ZonedDateTime.parse(shift.getEndTime()).withYear(ZonedDateTime.now().getYear());
+                // Parse start and end times in the user's timezone
+                ZonedDateTime startTime = ZonedDateTime.parse(shift.getStartTime())
+                        .withZoneSameInstant(ZoneId.of(userTimezone));
+                ZonedDateTime endTime = ZonedDateTime.parse(shift.getEndTime())
+                        .withZoneSameInstant(ZoneId.of(userTimezone));
+
+                // Convert times to UTC for Google Calendar, it will always save events in UTC so that's why this conversion is necessary.
+                ZonedDateTime startTimeUtc = startTime.withZoneSameInstant(ZoneId.of("UTC"));
+                ZonedDateTime endTimeUtc = endTime.withZoneSameInstant(ZoneId.of("UTC"));
 
 
 
                 Event event = new Event().setSummary(calendarSummary);
 
+               // We set the timezone they are supposed to show the event to the user below:
                     // Format start time
                 EventDateTime start = new EventDateTime()
-                            .setDateTime(new DateTime(formatZonedDateTimeForGoogle(startTime)))
-                            .setTimeZone("UTC");
+                            .setDateTime(new DateTime(formatZonedDateTimeForGoogle(startTimeUtc)))
+                            .setTimeZone(userTimezone);
                     event.setStart(start);
 
                     // Format end time
                 EventDateTime end = new EventDateTime()
-                            .setDateTime(new DateTime(formatZonedDateTimeForGoogle(endTime)))
-                            .setTimeZone("UTC");
+                            .setDateTime(new DateTime(formatZonedDateTimeForGoogle(endTimeUtc)))
+                            .setTimeZone(userTimezone);
                     event.setEnd(end);
 
                     // Check if its duplicate and add the event to the list
@@ -160,6 +167,21 @@ public class CalendarService {
 
         // Step 2: No matching event found, return false
         return false;
+    }
+
+    public String getUserTimeZone(String accessToken) throws IOException, GeneralSecurityException {
+        // Step 1: Set up transport and factory
+        JsonFactory jsonFactory = GsonFactory.getDefaultInstance();
+        var httpTransport = GoogleNetHttpTransport.newTrustedTransport();
+
+        // Step 2: Use access token to authenticate
+        GoogleCredentials credentials = GoogleCredentials.create(new AccessToken(accessToken, null))
+                .createScoped(CalendarScopes.CALENDAR);
+        Calendar service = new Calendar.Builder(httpTransport, jsonFactory, new HttpCredentialsAdapter(credentials))
+                .setApplicationName("Tomo Import")
+                .build();
+        Setting timezoneSetting = service.settings().get("timezone").execute();
+        return timezoneSetting.getValue();
     }
 }
 
