@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.google.api.services.calendar.Calendar;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.time.Year;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -83,13 +84,17 @@ public class CalendarService {
         List<Event> events = new ArrayList<>();
 
         String userTimezone = getUserTimeZone(accessToken);
+        int currentYear = Year.now().getValue();
+
 
         try {
             for (Shift shift : shifts) {
                 // Parse start and end times in the user's timezone
                 ZonedDateTime startTime = ZonedDateTime.parse(shift.getStartTime())
+                        .withYear(currentYear)
                         .withZoneSameInstant(ZoneId.of(userTimezone));
                 ZonedDateTime endTime = ZonedDateTime.parse(shift.getEndTime())
+                        .withYear(currentYear)
                         .withZoneSameInstant(ZoneId.of(userTimezone));
 
                 // Convert times to UTC for Google Calendar, it will always save events in UTC so that's why this conversion is necessary.
