@@ -47,7 +47,7 @@ public class GeminiService {
                         "{\"text\": \"Please extract the date, start time, and end time for each shift from the provided work schedule screenshot. Format the output into a JSON object as follows: \\n\\n" +
                         "- Use the ISO 8601 format (e.g., 2025-01-20T10:00:00-07:00) for start and end times, including the timezone offset.\\n" +
                         "- Provide the date, start time, end time, and month for each shift.\\n" +
-                        "- If the image is not a schedule or calendar, return 0.\\n\\n" +
+                        "- Always use the current year in both the date, start time and end time\\n\\n" +
                         "The JSON structure should be: \\n\\n" +
 //                        "{\\n" +
                         "  \\\"shifts\\\": [\\n" +
