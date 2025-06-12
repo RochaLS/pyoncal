@@ -15,6 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.Year;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Base64;
 import java.util.List;
 
@@ -38,28 +40,30 @@ public class GeminiService {
         byte[] imageBytes = file.getBytes();
         String encodedImage = Base64.getEncoder().encodeToString(imageBytes);
 
+        // Dynamically determine the timezone offset for Vancouver
+        ZoneId vancouverZone = ZoneId.of("America/Vancouver");
+        ZonedDateTime now = ZonedDateTime.now(vancouverZone);
+        String timezoneOffset = now.getOffset().toString(); // This will be -08:00 or -07:00
 
-        // Create the request body
+        // Create the request body with dynamic timezone
         String requestBody = String.format(
                 "{" +
                         "\"contents\": [{" +
                         "\"parts\": [" +
                         "{\"text\": \"Please extract the date, start time, and end time for each shift from the provided work schedule screenshot. Format the output into a JSON object as follows: \\n\\n" +
-                        "- Use the ISO 8601 format (e.g., 2025-01-20T10:00:00-08:00) for start and end times, including the timezone offset.\\n" +
+                        "- Use the ISO 8601 format (e.g., 2025-01-20T10:00:00%s) for start and end times, including the timezone offset.\\n" +
                         "- Provide the date, start time, end time, and month for each shift.\\n" +
                         "- Always use the current year in both the date, start time and end time\\n\\n" +
                         "The JSON structure should be: \\n\\n" +
-//                        "{\\n" +
                         "  \\\"shifts\\\": [\\n" +
                         "    {\\n" +
                         "      \\\"date\\\": \\\"YYYY-MM-DD\\\",\\n" +
-                        "      \\\"start_time\\\": \\\"YYYY-MM-DDTHH:MM:SS-08:00\\\",\\n" +
-                        "      \\\"end_time\\\": \\\"YYYY-MM-DDTHH:MM:SS-08:00\\\",\\n" +
+                        "      \\\"start_time\\\": \\\"YYYY-MM-DDTHH:MM:SS%s\\\",\\n" +
+                        "      \\\"end_time\\\": \\\"YYYY-MM-DDTHH:MM:SS%s\\\",\\n" +
                         "      \\\"month\\\": M\\n" +
                         "    },\\n" +
                         "    ...\\n" +
                         "  ]\\n" +
-//                        "}\\n\\n" +
                         "Ensure that the JSON object contains only the list of shifts with their date, start time, end time, and month.\"}," +
                         "{\"inline_data\": {" +
                         "\"mime_type\": \"image/png\"," +
@@ -68,7 +72,7 @@ public class GeminiService {
                         "]" +
                         "}]" +
                         "}",
-                encodedImage
+                timezoneOffset, timezoneOffset, timezoneOffset, encodedImage
         );
 
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
